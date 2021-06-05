@@ -1,0 +1,814 @@
+#include <stdio.h>
+#include<stdlib.h>
+#include <string.h>
+#include<conio.h>
+struct date {
+    int jour;
+    int mois;
+    int annee;
+};
+typedef struct date date;
+struct Voiture
+{
+    int idVoiture;
+    char marque[15];
+    char nomVoiture[15];
+    char couleur[7];
+    int nbplaces;
+    int prixJour;
+    char EnLocation[4];
+};
+struct contratLocation
+{
+    float numContrat;
+    int idVoiture;
+    int idClient;
+    date debut;
+    date fin;
+    int cout;
+};
+struct Client {
+    int idClient;
+    char nom[20];
+    char prenom[20];
+    int cin;
+    char adresse[15];
+    int telephone;
+};
+//noms de fichiers
+//on change les noms des structtures pour simplifier
+typedef struct date date;
+typedef struct Client client;
+typedef struct Voiture voiture;
+typedef struct contratLocation contrat;
+//declaration des fonctions
+void menu();//menu principal
+void M_voiture();//menu de gestion des voiture
+void V_ajouter();//ajouter une voiture
+void V_afficher();//afficher la liste des voitures
+void V_modifier();//modifier les informations une voiture
+void V_supprimer();//supprimer une voiture
+void M_client();//menu du clients
+void C_afficher();//afficher la liste des clients
+void C_ajouter();//ajouter un client
+void C_modifier();//modifier les informations d'un client
+void C_supprimer();//supprimer un client
+void M_location();//menu de gestion de location
+void L_visualiser();//afficher les détails d'un contrat
+void L_modifier();//modifier un contrat
+void L_louer();//louer une voiture et créer un contrat en même temps
+void L_supprimer();//supprimer contrat
+void L_retourner();//retourner une voiture et supprimer son contrat
+
+
+int main () {
+    menu();
+}
+void menu () {
+    int choix;
+    system("cls");
+    //les options de menu principal
+    printf ("______Menu Principal_____\n");
+    printf ("1___Location\n");
+    printf ("2___Gestion Voiture\n");
+    printf ("3___Gestion Client\n");
+    printf ("4___Quiter\n");
+    printf ("Votre choix : ");
+    scanf("%d",&choix);
+    switch (choix) {
+    case 1 :
+        M_location();
+        break;
+    case 2 :
+        M_voiture();
+        break;
+    case 3 :
+        M_client();
+        break;
+    case 4 :
+        exit;
+        break;
+    default:
+        printf("votre choix n'est pas valid\n");
+        getchar();
+        menu();
+        break;
+    }
+
+}
+void M_voiture() {
+    int choix;
+    system("cls");
+    //les choix de menu de gestion des voitures
+    printf ("______Gestion des voiture_____\n");
+    printf ("1___Liste des voiture\n");
+    printf ("2___Ajouter une voiture\n");
+    printf ("3___Modifier une voiture\n");
+    printf ("4___Supprime une voiture\n");
+    printf ("5___Retourner\n");
+    printf ("Votre choix : ");
+    scanf("%d",&choix);
+    switch (choix) {
+    case 1 :
+        V_afficher();
+        break;
+    case 2 :
+        V_ajouter();
+        break;
+    case 3 :
+        V_modifier();
+        break;
+    case 4 :
+        V_supprimer();
+        break;
+    case 5 :
+        menu();
+        break;
+    default:
+        printf("votre choix n'est pas valid\n");
+        break;
+        getchar();
+        M_voiture();
+
+    }
+}
+void V_ajouter() {
+    system ("cls");
+    FILE *fp;
+    fp=fopen("voiture","ab");
+    voiture V;
+    printf("\nenter id de voiture : ");
+    scanf("%d",&V.idVoiture);
+    printf("\nenter nom de voiture : ");
+    scanf("%d",&V.nomVoiture);
+    printf("\nenter marque de voiture : ");
+    scanf("%s",V.marque);
+    printf("\nenter couleur de voiture : ");
+    scanf("%s",V.couleur);
+    printf("\nenter nombre de places de voiture : ");
+    scanf("%d",&V.nbplaces);
+    printf("\nenter le prix par jour : ");
+    scanf("%d",&V.prixJour);
+    printf("En location ? (oui/non) :  ");
+    scanf("%s",V.EnLocation);
+    printf("voiture ajoutée avec succès !\n");
+    fwrite(&V,sizeof(V),1,fp);
+    fclose(fp);
+    getchar();
+    M_voiture();
+}
+void V_afficher() {
+    voiture V;
+    system ("cls");
+    FILE *fp;
+    fp=fopen("voiture","rb");
+    if(fp==NULL) {
+        printf("Liste Vide !\n");
+        getchar();
+        M_voiture();
+
+    }
+    printf("id\tNom\tMarque\tCouleur\tnb places\tprix/jour\tEn location ?\n");
+    while(!feof(fp)) {
+        fread(&V,sizeof(V),1,fp);
+        printf("\n%d\t",V.idVoiture);
+        printf("%s\t",V.marque);
+        printf("%s\t",V.couleur);
+        printf("%d\t",V.nbplaces);
+        printf("%d\t",V.prixJour);
+        printf("%s\t\n",V.EnLocation);
+
+    }
+    fclose(fp);
+    getchar();
+    M_voiture();
+
+}
+void V_modifier() {
+    system ("cls");
+    int id, found=0;
+    printf("Entrer ID de la voiture : ");
+    scanf("%d",&id);
+    voiture V;
+    FILE *fp, *fp1;
+    fp=fopen("voiture","rb");
+    fp1=fopen("tmp.dat","wb");
+    while(!feof(fp)) {
+        fread(&V,sizeof(V),1,fp);
+        if (V.idVoiture==id) {
+            found=1;
+            printf("\nVoiture trouvée !\n");
+            printf("\nenter id de voiture : ");
+            scanf("%d",&V.idVoiture);
+            printf("\nenter marque de voiture : ");
+            scanf("%s",V.marque);
+            printf("\nenter couleur de voiture : ");
+            scanf("%s",V.couleur);
+            printf("\nenter nombre de places de voiture : ");
+            scanf("%d",&V.nbplaces);
+            printf("\nenter le prix par jour : ");
+            scanf("%d",&V.prixJour);
+            printf("En location ? (oui/non) :  ");
+            scanf("%s",V.EnLocation);
+            printf("voiture modifiée avec succès !\n");
+            fwrite(&V,sizeof(V),1,fp1);
+        }
+        else {
+            fwrite(&V,sizeof(V),1,fp1);
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    if (found==0) {
+        printf("aucun voiture trouvée !\n");
+        getchar();
+        M_voiture();
+    }
+    else {
+        fp=fopen("voiture","wb");
+        fp1=fopen("tmp.dat","rb");
+        while(!feof(fp1)) {
+            fread(&V,sizeof(V),1,fp1);
+            fwrite(&V,sizeof(V),1,fp);
+        }
+    }
+    getchar();
+    M_voiture();
+
+}
+void V_supprimer() {
+    system ("cls");
+    int id, found=0;
+    printf("Entrer ID de la voiture : ");
+    scanf("%d",&id);
+    voiture V;
+    FILE *fp, *fp1;
+    fp=fopen("voiture","rb");
+    fp1=fopen("tmp.dat","wb");
+    while(!feof(fp)) {
+        fread(&V,sizeof(V),1,fp);
+        if (V.idVoiture==id) {
+            found=1;
+        }
+        else {
+            fwrite(&V,sizeof(V),1,fp1);
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    if (found==0) {
+        printf("aucun voiture trouvée !\n");
+        getchar();
+        M_voiture();
+    }
+    else {
+        fp=fopen("voiture","wb");
+        fp1=fopen("tmp.dat","rb");
+        while(!feof(fp1)) {
+            fread(&V,sizeof(V),1,fp1);
+            fwrite(&V,sizeof(V),1,fp);
+            printf("\nvoiture supprimée avec succès !\n ");
+
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    getchar();
+    M_voiture();
+
+}
+void M_client() {
+    int choix;
+    system("cls");
+    //les choix de menu de gestion des clients
+    printf ("______Gestion des Clients_____\n");
+    printf ("1___Liste des clients\n");
+    printf ("2___Ajouter un client\n");
+    printf ("3___Modifier un client\n");
+    printf ("4___Supprimer un client\n");
+    printf ("5___Retourner\n");
+    printf ("Votre choix : ");
+    scanf("%d",&choix);
+    switch (choix) {
+    case 1 :
+        C_afficher();
+        break;
+    case 2 :
+        C_ajouter();
+        break;
+    case 3 :
+        C_modifier();
+        break;
+    case 4 :
+        C_supprimer();
+        break;
+    case 5 :
+        menu();
+        break;
+    default:
+        printf("votre choix n'est pas valid\n");
+        break;
+        getchar();
+        M_client();
+
+    }
+}
+void C_afficher() {
+    client C;
+    system ("cls");
+    FILE *fp;
+    fp=fopen("client","rb");
+    if(fp==NULL) {
+        printf("Liste Vide !\n");
+        getchar();
+        M_voiture();
+
+    }
+    printf("id\tNom\tMPrenom\tCIN\tAdresse\tTelephone/");
+    while(!feof(fp)) {
+        fread(&C,sizeof(C),1,fp);
+        printf("\n%d\t",C.idClient);
+        printf("%s\t",C.nom);
+        printf("%s\t",C.prenom);
+        printf("%d\t",C.cin);
+        printf("%s\t",C.adresse);
+        printf("%d\t\n",C.telephone);
+
+    }
+    fclose(fp);
+    getchar();
+    M_voiture();
+
+}
+void C_ajouter() {
+    system ("cls");
+    FILE *fp;
+    fp=fopen("client","ab");
+    client C;
+    printf("\nenter id du client : ");
+    scanf("%d",&C.idClient);
+    printf("\nenter nom : ");
+    scanf("%s",C.nom);
+    printf("\nenter prenom: ");
+    scanf("%s",C.prenom);
+    printf("\nenter CIN : ");
+    scanf("%d",&C.cin);
+    printf("\nenter adresse :  ");
+    scanf("%s",C.adresse);
+    printf("\nentrer numero de telephone :");
+    scanf("%d",&C.telephone);
+    printf("Client ajoutée avec succès !\n");
+    fwrite(&C,sizeof(C),1,fp);
+    fclose(fp);
+    getchar();
+    M_client();
+}
+void C_modifier() {
+    system ("cls");
+    int id, found=0;
+    printf("Entrer ID du client : ");
+    scanf("%d",&id);
+    client C;
+    FILE *fp, *fp1;
+    fp=fopen("client","rb");
+    fp1=fopen("tmp.dat","wb");
+    while(!feof(fp)) {
+        fread(&C,sizeof(C),1,fp);
+        if (C.idClient==id) {
+            found=1;
+            printf("\nClient trouvée !\n");
+            printf("\nenter id du client : ");
+            scanf("%d",&C.idClient);
+            printf("\nenter nom : ");
+            scanf("%s",C.nom);
+            printf("\nenter prenom: ");
+            scanf("%s",C.prenom);
+            printf("\nenter CIN : ");
+            scanf("%d",&C.cin);
+            printf("\nenter adresse :  ");
+            scanf("%s",C.adresse);
+            printf("\nentrer numero de telephone :");
+            scanf("%d",&C.telephone);
+            printf("\nclient modifiée avec succès !\n");
+            fwrite(&C,sizeof(C),1,fp1);
+        }
+        else {
+            fwrite(&C,sizeof(C),1,fp1);
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    if (found==0) {
+        printf("aucun client trouvée !\n");
+        getchar();
+        M_client();
+    }
+    else {
+        fp=fopen("client","wb");
+        fp1=fopen("tmp.dat","rb");
+        while(!feof(fp1)) {
+            fread(&C,sizeof(C),1,fp1);
+            fwrite(&C,sizeof(C),1,fp);
+        }
+    }
+    getchar();
+    M_client();
+
+}
+void C_supprimer() {
+    system ("cls");
+    int id, found=0;
+    printf("Entrer ID du client : \n");
+    scanf("%d",&id);
+    client C;
+    FILE *fp, *fp1;
+    fp=fopen("client","rb");
+    fp1=fopen("tmp.dat","wb");
+    while(!feof(fp)) {
+        fread(&C,sizeof(C),1,fp);
+        if (C.idClient==id) {
+            found=1;
+        }
+        else {
+            fwrite(&C,sizeof(C),1,fp1);
+        }
+    }
+    if (found==0) {
+        printf("aucun client trouvée avec cette id !\n");
+    }
+    else {
+        printf("client supprimée avec succès !\n");
+    }
+    fclose(fp);
+    fclose(fp1);
+    if (found==0) {
+        printf("aucun client trouvée !\n");
+        getchar();
+        M_client();
+    }
+    else {
+        fp=fopen("client","wb");
+        fp1=fopen("tmp.dat","rb");
+        while(!feof(fp1)) {
+            fread(&C,sizeof(C),1,fp1);
+            fwrite(&C,sizeof(C),1,fp);
+        }
+    }
+    getchar();
+    M_client();
+
+}
+void M_location() {
+    int choix;
+    system("cls");
+    //les choix de menu de gestion des voitures
+    printf ("______Location d'une voiture_____\n");
+    printf ("1___Visualiser contrat\n");
+    printf ("2___Louer voiture\n");
+    printf ("3___Retouner voiture\n");
+    printf ("4___Modifier contrat\n");
+    printf ("5___Supprimer contrat\n");
+    printf ("6___Retour\n");
+    printf ("Votre choix : ");
+    scanf("%d",&choix);
+    switch (choix) {
+    case 1 :
+        L_visualiser();
+        break;
+    case 2 :
+        L_louer ();
+        break;
+    case 3 :
+    //L_retourner();
+    case 4 :
+        L_modifier();
+        break;
+    case 5 :
+        L_supprimer();
+        break;
+    case 6 :
+        menu();
+        break;
+    default:
+        printf("votre choix n'est pas valid\n");
+        break;
+        getchar();
+        M_location();
+
+    }
+}
+void L_louer() {
+    system ("cls");
+    char nom[20],prenom[20];
+    int prix,cout,idVoiture,idClient,found_client=0,found_car=0, EnLocation=0;
+    printf ("\nentrer ID de la voiture\n");
+    scanf("%d",&idVoiture);
+    FILE *fp1,*fp2;
+    fp1=fopen("voiture","rb");
+    fp2=fopen("client","rb");
+    while(!feof(fp1)) {
+        voiture V;
+        fread(&V,sizeof(V),1,fp1);
+        if (idVoiture == V.idVoiture) {
+            found_car = 1;
+            prix = V.prixJour;
+            if (strcmp(V.EnLocation,"non")) {
+                EnLocation=1;
+            }
+        }
+    }
+    fclose (fp1);
+    while(!feof(fp2)) {
+        client C;
+        fread(&C,sizeof(C),1,fp2);
+        if (strcmp(C.nom,nom[20]) && strcmp(C.prenom,prenom[20])) {
+            found_client = 1;
+            idClient=C.idClient;
+        }
+    }
+    fclose (fp2);
+    if (found_client==0) {
+        printf("\n client n'existe pas !\n");
+        getchar();
+        M_location;
+    }
+    else if (found_car==0) {
+        printf("\n voiture n'existe pas !\n");
+        getchar();
+        M_location;
+    }
+    else if (EnLocation==0) {
+        printf("\n voiture n'est pas disponible au moment !\n");
+        getchar();
+        M_location;
+    }
+    else {
+        //modifier l'attribut «EnLocation»
+        fp2=fopen("voiture","rb");
+        fp1=fopen("tmp.dat","wb");
+        voiture V;
+        while(!feof(fp2)) {
+            fread(&V,sizeof(V),1,fp2);
+            if (V.idVoiture==idVoiture) {
+                strcpy(V.EnLocation,"oui");
+            }
+            else {
+                fwrite(&V,sizeof(V),1,fp1);
+            }
+        }
+        fclose(fp2);
+        fclose(fp1);
+
+        fp2=fopen("voiture","wb");
+        fp1=fopen("tmp.dat","rb");
+        while(!feof(fp1)) {
+            fread(&V,sizeof(V),1,fp1);
+            fwrite(&V,sizeof(V),1,fp2);
+
+
+        }
+
+        fclose(fp2);
+        fclose(fp1);
+    }
+    //créer une nouvelle uncontrat
+    contrat Ct;
+    printf("\nentrer la num du contrat : \n");
+    scanf("%f",Ct.numContrat);
+    printf("\nEntrer la date de début : ");
+    printf("\nJour : ");
+    scanf("%d",&Ct.debut.jour);
+    printf("\nmois : ");
+    scanf("%d",&Ct.debut.mois);
+    printf("\nannée : ");
+    scanf("%d",&Ct.debut.annee);
+    printf("\nEntrer la date de fin : ");
+    printf("\nJour : ");
+    scanf("%d",&Ct.fin.jour);
+    printf("\nmois : ");
+    scanf("%d",&Ct.fin.mois);
+    printf("\nannée : ");
+    scanf("%d",&Ct.fin.annee);
+    Ct.cout = prix*diff(Ct.debut.jour,Ct.debut.mois,Ct.debut.annee,Ct.fin.jour,Ct.fin.mois,Ct.fin.annee);
+    Ct.idVoiture=idVoiture;
+    Ct.idClient=idClient;
+    fp1=fopen("Location","ab");
+    fwrite(&Ct,sizeof(Ct),1,fp1);
+    fclose(fp1);
+    printf("contrat créée avec succès !");
+    getchar();
+    M_location;
+
+}
+void L_visualiser() {
+    system ("cls");
+    int num;
+    printf("\nentrer numero du contrat : ");
+    scanf("%d",num);
+    FILE *fp1;
+    fp1=fopen("Location","rb");
+    while(!feof(fp1)) {
+        contrat Ct;
+        fread(&Ct,sizeof(Ct),1,fp1);
+        if (num==Ct.numContrat) {
+            printf("\nid de voiture : %d",Ct.idVoiture);
+            printf("\nid du client : %d\n",Ct.idClient);
+            printf ("\nDate de début :%d / %d / %d",Ct.debut.jour,Ct.debut.mois,Ct.debut.annee);
+            printf ("\nDate de fin :%d / %d / %d",Ct.fin.jour,Ct.fin.mois,Ct.fin.annee);
+            printf ("\nLe cout : %d",Ct.cout);
+        }
+    }
+    fclose (fp1);
+    getchar();
+    M_location();
+
+}
+void L_supprimer() {
+    system ("cls");
+    int num, found=0;
+    printf("Entrer numero de contrat : \n");
+    scanf("%d",&num);
+    contrat Ct;
+    FILE *fp, *fp1;
+    fp=fopen("Location","rb");
+    fp1=fopen("tmp.dat","wb");
+    while(!feof(fp)) {
+        fread(&Ct,sizeof(Ct),1,fp);
+        if (Ct.numContrat==num) {
+            found=1;
+        }
+        else {
+            fwrite(&Ct,sizeof(Ct),1,fp1);
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    if (found==0) {
+        printf("aucun contrat trouvée !\n");
+        getchar();
+        M_client();
+    }
+    else {
+        fp=fopen("Location","wb");
+        fp1=fopen("tmp.dat","rb");
+        while(!feof(fp1)) {
+            fread(&Ct,sizeof(Ct),1,fp1);
+            fwrite(&Ct,sizeof(Ct),1,fp);
+        }
+        printf("\ncontrat supprimée avec succès !\n");
+    }
+    getchar();
+    M_location();
+
+}
+void L_modifier() {
+    system ("cls");
+    int id, found=0;
+    printf("Entrer num du contrat : ");
+    scanf("%d",&id);
+    contrat Ct;
+    FILE *fp, *fp1;
+    fp=fopen("Location","rb");
+    fp1=fopen("tmp.dat","wb");
+    while(!feof(fp)) {
+        fread(&Ct,sizeof(Ct),1,fp);
+        if (Ct.numContrat==id) {
+            found=1;
+            printf("\nClient trouvée !\n");
+            printf("\nenter num du contrat: ");
+            scanf("%f",&Ct.numContrat);
+            printf("\nenter id de Voiture: ");
+            scanf("%d",&Ct.idVoiture);
+            printf("\nEntrer la date de début : ");
+            printf("\nJour : ");
+            scanf("%d",&Ct.debut.jour);
+            printf("\nmois : ");
+            scanf("%d",&Ct.debut.mois);
+            printf("\nannée : ");
+            scanf("%d",&Ct.debut.annee);
+            printf("\nEntrer la date de fin : ");
+            printf("\nJour : ");
+            scanf("%d",&Ct.fin.jour);
+            printf("\nmois : ");
+            scanf("%d",&Ct.fin.mois);
+            printf("\nannée : ");
+            scanf("%d",&Ct.fin.annee);
+            fwrite(&Ct,sizeof(Ct),1,fp1);
+        }
+        else {
+            fwrite(&Ct,sizeof(Ct),1,fp1);
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    if (found==0) {
+        printf("aucun contrat trouvée !\n");
+        getchar();
+        M_client();
+    }
+    else {
+        fp=fopen("Location","wb");
+        fp1=fopen("tmp.dat","rb");
+        while(!feof(fp1)) {
+            fread(&Ct,sizeof(Ct),1,fp1);
+            fwrite(&Ct,sizeof(Ct),1,fp);
+        }
+    }
+    getchar();
+    M_client();
+
+}
+void L_retourner() {
+    system ("cls");
+    int idVoiture,found=0;
+    printf("\nEntrer id de la voiture : ");
+    scanf("%d", idVoiture);
+    FILE *fp,*fp1,*fp2;
+    fp2=fopen("voiture","rb");
+    fp1=fopen("tmp.dat","wb");
+    voiture V;
+    while(!feof(fp2)) {
+        fread(&V,sizeof(V),1,fp2);
+        if (V.idVoiture==idVoiture) {
+            strcpy(V.EnLocation,"non");
+        }
+        else {
+            fwrite(&V,sizeof(V),1,fp1);
+        }
+    }
+    fclose(fp2);
+    fclose(fp1);
+
+    fp2=fopen("voiture","wb");
+    fp1=fopen("tmp.dat","rb");
+    while(!feof(fp1)) {
+        fread(&V,sizeof(V),1,fp1);
+        fwrite(&V,sizeof(V),1,fp2);
+
+
+    }
+
+    fclose(fp2);
+    fclose(fp1);
+    fp=fopen("Location","rb");
+    fp1=fopen("tmp.dat","wb");
+    contrat Ct;
+    while(!feof(fp)) {
+        fread(&Ct,sizeof(Ct),1,fp);
+        if (Ct.idVoiture==idVoiture) {
+            found=1;
+        }
+        else {
+            fwrite(&Ct,sizeof(Ct),1,fp1);
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    if (found==0) {
+        printf("aucun contrat trouvée !\n");
+        getchar();
+        M_client();
+    }
+    else {
+        fp=fopen("Location","wb");
+        fp1=fopen("tmp.dat","rb");
+        while(!feof(fp1)) {
+            fread(&Ct,sizeof(Ct),1,fp1);
+            fwrite(&Ct,sizeof(Ct),1,fp);
+        }
+        printf("\nvoiture retourner avec succès !\n");
+    }
+    getchar();
+    M_location();
+
+}
+
+int diff(int day1, int mon1, int year1,int day2, int mon2, int year2) {//cette fonction est seulement pour calculer la différence entre deux dates
+    int diff, day_diff, mon_diff, year_diff;
+    if(day2 < day1) { // borrow days from february
+        if (mon2 == 3) { // check whether year is a leap year
+            if ((year2 % 4 == 0 && year2 % 100 != 0) || (year2 % 400 == 0)) {
+                day2 += 29;
+            }
+            else {
+                day2 += 28;
+            }
+        } // borrow days from April or June or September or November
+        else if (mon2 == 5 || mon2 == 7 || mon2 == 10 || mon2 == 12) {
+            day2 += 30;
+        } // borrow days from Jan or Mar or May or July or Aug or Oct or Dec
+        else {
+            day2 += 31;
+        }
+        mon2 = mon2 - 1;
+    }
+    if (mon2 < mon1) {
+        mon2 += 12;
+        year2 -= 1;
+    }
+    day_diff = day2 - day1;
+    mon_diff = mon2 - mon1;
+    year_diff = year2 - year1;
+    diff =day_diff+mon_diff*30+year_diff*365;
+    return diff;
+}
